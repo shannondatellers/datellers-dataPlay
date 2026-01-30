@@ -354,6 +354,7 @@ export class Visual implements IVisual {
       this.events.renderingFinished(options);
     } catch (err) {
       // 👇 required if something breaks
+      console.log("Error:",err)
       this.events.renderingFailed(options, err instanceof Error ? err.message : "Unknown error");
     }
   }
@@ -365,7 +366,6 @@ export class Visual implements IVisual {
     const formattingModel: powerbi.visuals.FormattingModel = { cards: [] };
     const cards = createFormattingCards(this);
     cards.forEach((card) => {
-      console.log(card)
       if (!isNil(card)) {
         formattingModel.cards.push(card);
       }

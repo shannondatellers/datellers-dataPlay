@@ -2,11 +2,11 @@ import powerbi from "powerbi-visuals-api";
 import { Visual } from "../visual";
 import { 
     TransitionSettingsCard, 
-    ButtonSettingCard, 
     CaptionSettingsCard, 
     CustomSortCard, 
     ScrubberSettingsCard 
 } from "./FormattingCards/visualSettingsCards";
+import { ButtonSettingCard } from "./FormattingCards/buttonSettingsCards";
 
 import FormattingCard = powerbi.visuals.FormattingCard;
 
