@@ -1,0 +1,175 @@
+@import "../node_modules/bootstrap/dist/css/bootstrap.css";
+@import "../node_modules/bootstrap-icons/font/bootstrap-icons.css";
+
+.visual-sandbox {
+  background: none !important;
+}
+
+.body {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.tp-toolbar {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: visible;
+  max-height: 100%;
+}
+
+.button-container {
+  display: flex;
+  gap: 0px;
+  flex: 1 1 auto;
+  min-width: 0;
+  align-items: center;
+  justify-content: flex-start;
+  overflow: visible;
+}
+// .control-button {
+//   background: white;
+//   border: 1px solid #ccc;
+//   border-radius: 6px;
+//   padding: 6px 12px;
+//   font-size: 16px;
+// }
+.control-button {
+  padding: 0;
+  font-size: 16px;
+  cursor: pointer;
+  border: none;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  
+  i {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    line-height: 1;
+    margin: 0;
+    padding: 0;
+  }
+}
+
+.caption {
+  flex: 0 0 auto;
+  margin-left: 8px;
+  overflow: visible;
+  display: flex;
+  align-items: center;
+}
+
+.control-button:hover {
+  background-color: #ddd;
+}
+
+/* width */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #747474;
+  border-radius: 3.5px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.tp-scrubber-container {
+  flex: 0 0 auto;
+  width: 100%;
+  padding: 2px 0 0 0;
+  box-sizing: border-box;
+  margin-top: auto;
+}
+
+.tp-scrubber {
+  width: 100%;
+  height: 20px;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  outline: none;
+  margin: 0;
+  padding: 0;
+}
+
+.tp-scrubber::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 4px;
+  background: #ddd;
+  border-radius: 2px;
+  border: none;
+}
+
+.tp-scrubber::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  background: #747474;
+  border-radius: 50%;
+  cursor: pointer;
+  margin-top: -5px;
+  border: none;
+}
+
+.tp-scrubber::-webkit-slider-thumb:hover {
+  background: #555;
+}
+
+.tp-scrubber::-moz-range-track {
+  width: 100%;
+  height: 4px;
+  background: #ddd;
+  border-radius: 2px;
+  border: none;
+}
+
+.tp-scrubber::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  background: #747474;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+}
+
+.tp-scrubber::-moz-range-thumb:hover {
+  background: #555;
+}
+
+.tp-scrubber:focus {
+  outline: none;
+}
+
+.tp-scrubber:focus::-webkit-slider-thumb {
+  box-shadow: 0 0 0 2px rgba(116, 116, 116, 0.3);
+}
+
+.tp-scrubber:focus::-moz-range-thumb {
+  box-shadow: 0 0 0 2px rgba(116, 116, 116, 0.3);
+}

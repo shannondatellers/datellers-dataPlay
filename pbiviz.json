@@ -1,0 +1,20 @@
+{
+  "visual": {
+    "name": "dataPlay",
+    "displayName": "Datellers Data Play",
+    "guid": "dataPlayE81CB015D0314A9F8B550AD020CC03F7",
+    "visualClassName": "Visual",
+    "version": "1.0.0.0",
+    "description": "Data Play is a Power BI custom visual by Datellersthat animates report visuals by cycling through time or category values using play and pause controls, enabling dynamic, story-driven data exploration.",
+    "supportUrl": "https://datellers.com/support",
+    "gitHubUrl": ""
+  },
+  "apiVersion": "5.11.0",
+  "author": { "name": "Datellers Private Limited", "email": "contact@datellers.com" },
+  "assets": { "icon": "assets/icon.png" },
+  "externalJS": null,
+  "style": "style/visual.less",
+  "capabilities": "capabilities.json",
+  "dependencies": null,
+  "stringResources": []
+}
