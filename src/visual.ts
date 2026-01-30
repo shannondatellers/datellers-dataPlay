@@ -178,19 +178,13 @@ export class Visual implements IVisual {
     // Adjust layout based on Dynamic Sizing setting
     const isDynamicSize = this.visualSettings.buttonSetting.dynamicSize;
 
-    if (isDynamicSize) {
-      // Dynamic Sizing ON: buttons grow, caption sizes to content
-      selectAll('.button-container').style('flex', '0 0 auto');
-      select('.caption').style('flex', '0 0 auto');
-    } else {
-      // Dynamic Sizing OFF: buttons use configured size, caption takes remaining space
-      selectAll('.button-container').style('flex', '0 0 auto');
-      select('.caption').style('flex', '1 1 auto');
-      // Remove fixed width from caption when it should take remaining space
-      select('.caption').style('width', null);
-    }
+    // Adjust layout: caption always takes remaining space to allow full alignment
+    selectAll('.button-container').style('flex', '0 0 auto');
+    select('.caption').style('flex', '1 1 auto');
+    // Remove any fixed width so flexbox can take over
+    select('.caption').style('width', null);
 
-    // Measure caption text width and set width to text width + 10px (only when dynamic sizing is on)
+    // Measure caption text width for button size calculation (only when dynamic sizing is on)
     const captionElement = this.element.querySelector<HTMLElement>('.caption');
     let captionWidth = 0;
     if (isDynamicSize && this.visualSettings.captionSettings.show && captionElement) {
@@ -198,7 +192,6 @@ export class Visual implements IVisual {
       void captionElement.offsetWidth;
       const textWidth = captionElement.scrollWidth;
       captionWidth = textWidth + 10; 
-      select('.caption').style('width', `${captionWidth}px`);
     }
 
     // Adjust viewport height to account for scrubber
