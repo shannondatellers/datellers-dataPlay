@@ -272,6 +272,7 @@ export class Visual implements IVisual {
   public update(options: VisualUpdateOptions) {
     this.events.renderingStarted(options);
     // Always clear the root element so only one UI is shown
+    
     try {
       // Set background to white
       this.rootSelection.selectAll("*").remove();
