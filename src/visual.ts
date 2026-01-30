@@ -82,10 +82,13 @@ export class Visual implements IVisual {
     const captionWidthBuffer = Math.ceil(captionDesiredWidth * 1.2);
     const reservedCaptionWidth = Math.max(captionWidthBuffer, this.visualSettings.captionSettings.show ? 40 : 0);
 
+    const configuredMargin = this.visualSettings.buttonSetting.margin ?? 0;
+    const totalButtonMargins = 2 * configuredMargin * visibleButtonCount;
+
     // Calculate maximum button size based on available width
-    const availableWidth = viewportWidth - reservedCaptionWidth - toolbarGap - basePadding * 2 - baseGap * (visibleButtonCount - 1);
+    const availableWidth = viewportWidth - reservedCaptionWidth - toolbarGap - basePadding * 2 - baseGap * (visibleButtonCount - 1) - totalButtonMargins;
     const maxButtonByWidth = Math.max(minButtonPx, Math.floor(availableWidth / Math.max(1, visibleButtonCount)));
-    const maxButtonByHeight = Math.max(minButtonPx, Math.floor(viewportHeight - basePadding * 2));
+    const maxButtonByHeight = Math.max(minButtonPx, Math.floor(viewportHeight - basePadding * 2) - 2 * configuredMargin);
 
     const sizeByAvailableSpace = Math.min(maxButtonByWidth, maxButtonByHeight);
     const nextSize = dynamicButtonSize ? sizeByAvailableSpace : Math.min(configuredButtonSize, sizeByAvailableSpace);
@@ -104,6 +107,7 @@ export class Visual implements IVisual {
 
     // Button padding controls spacing between the icon and the button border - make it responsive
     const configuredInnerPadding = this.visualSettings.buttonSetting.padding ?? 0;
+    const configuredMargin = this.visualSettings.buttonSetting.margin ?? 0;
     const maxInnerPadding = Math.max(0, Math.floor((this.buttonSize - 4) / 2.0));
     const innerPadding = Math.min(maxInnerPadding, Math.max(0, Math.floor(configuredInnerPadding)));
 
@@ -117,6 +121,7 @@ export class Visual implements IVisual {
       .style('width', `${this.buttonSize}px`)
       .style('height', `${this.buttonSize}px`)
       .style('padding', `${innerPadding}px`)
+      .style('margin', `${configuredMargin}px`)
       .style('font-size', `${iconFontSize}px`)
       .style('display', 'flex')
       .style('align-items', 'center')
@@ -200,25 +205,28 @@ export class Visual implements IVisual {
     const availableHeight = this.options.viewport.height - scrubberHeight;
 
     let targetButtonSize: number;
+    const configuredMargin = this.visualSettings.buttonSetting.margin ?? 0;
+
     if (isDynamicSize) {
       // Dynamic Sizing ON: Calculate button size considering both width and height constraints
-      // Reserve space for caption, gaps, and padding
+      // Reserve space for caption, gaps, padding, and button margins
       const buttonGaps = baseGap * (visibleButtonCount - 1);
-      const reservedWidth = captionWidth + toolbarGap + buttonGaps;
+      const totalButtonMargins = 2 * configuredMargin * visibleButtonCount;
+      const reservedWidth = captionWidth + toolbarGap + buttonGaps + totalButtonMargins;
       const availableWidth = Math.max(0, this.options.viewport.width - reservedWidth);
 
       // Calculate max button size by width (divide available width by button count)
       const maxButtonByWidth = Math.max(8, Math.floor(availableWidth / Math.max(1, visibleButtonCount)));
-      // Add small buffer to prevent cutoff (2px)
-      const maxButtonByHeight = Math.max(8, Math.floor(availableHeight - basePadding * 2 - 2));
+      // Subtract margin from available height as well
+      const maxButtonByHeight = Math.max(8, Math.floor(availableHeight - basePadding * 2 - 2) - 2 * configuredMargin);
 
       // Button size is constrained by both width and height - use the smaller value to keep buttons square
       const maxButtonSize = Math.min(maxButtonByWidth, maxButtonByHeight);
       targetButtonSize = maxButtonSize;
     } else {
       // Dynamic Sizing OFF: Use configured button size, constrained by height only
-      // Add small buffer to prevent cutoff (2px)
-      const maxButtonByHeight = Math.max(8, Math.floor(availableHeight - basePadding * 2 - 2));
+      // Subtract margin from available height
+      const maxButtonByHeight = Math.max(8, Math.floor(availableHeight - basePadding * 2 - 2) - 2 * configuredMargin);
       targetButtonSize = Math.min(this.visualSettings.buttonSetting.buttonSize, maxButtonByHeight);
     }
 
@@ -302,17 +310,20 @@ export class Visual implements IVisual {
       const basePadding = 0;
       const toolbarGap = this.visualSettings.captionSettings.show ? 6 : 0;
 
+      const configuredMargin = this.visualSettings.buttonSetting.margin ?? 0;
+      const totalButtonMargins = 2 * configuredMargin * visibleButtonCount;
+
       const maxButtonByWidth = Math.max(
         8,
         Math.floor(
-          (this.options.viewport.width - captionMinWidth - toolbarGap - basePadding * 2 - baseGap * (visibleButtonCount - 1)) /
+          (this.options.viewport.width - captionMinWidth - toolbarGap - basePadding * 2 - baseGap * (visibleButtonCount - 1) - totalButtonMargins) /
           Math.max(1, visibleButtonCount)
         )
       );
       // Reserve space for scrubber if it's shown (20px scrubber height + 2px padding = 22px total)
       const scrubberHeight = this.visualSettings.scrubberSettings.show ? 22 : 0;
       // Add small buffer to prevent cutoff (2px)
-      const maxButtonByHeight = Math.max(8, Math.floor(this.options.viewport.height - basePadding * 2 - scrubberHeight - 2));
+      const maxButtonByHeight = Math.max(8, Math.floor(this.options.viewport.height - basePadding * 2 - scrubberHeight - 2) - 2 * configuredMargin);
 
       const computedButtonSize = this.visualSettings.buttonSetting.dynamicSize
         ? Math.min(maxButtonByWidth, maxButtonByHeight)
@@ -410,8 +421,12 @@ export class Visual implements IVisual {
         iconStyle: this.visualSettings.buttonSetting.iconStyle,
         background: this.visualSettings.buttonSetting.background,
         padding: this.visualSettings.buttonSetting.padding,
+        margin: this.visualSettings.buttonSetting.margin,
       },
-      validValues: { padding: { numberRange: { min: 0, max: 100 } } },
+      validValues: {
+        padding: { numberRange: { min: 0, max: 100 } },
+        margin: { numberRange: { min: 0, max: 100 } },
+      },
       selector: null,
     });
 

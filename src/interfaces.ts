@@ -60,6 +60,7 @@ export interface ISettings {
     background: boolean;
     backgroundColor: Fill;
     padding: number;
+    margin: number;
   };
   captionSettings: {
     show: boolean;

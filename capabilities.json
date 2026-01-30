@@ -111,6 +111,12 @@
             "integer": true
           }
         },
+        "margin": {
+          "displayName": "Margin",
+          "type": {
+            "integer": true
+          }
+        },
 
         "showAll": {
           "displayName": "Color Individual",
@@ -189,11 +195,11 @@
           "type": {
             "enumeration": [
               {
-                "displayName": "Default",
+                "displayName": "Icon",
                 "value": "default"
               },
               {
-                "displayName": "Filled",
+                "displayName": "Icon Fill",
                 "value": "filled"
               },
               {

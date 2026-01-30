@@ -101,6 +101,7 @@ function createSettings(self: Visual, objects: DataViewObjects) {
       background: false,
       backgroundColor: { solid: { color: "#f0f0f0" } },
       padding: 2,
+      margin: 2,
     },
     captionSettings: {
       show: true,
@@ -148,6 +149,7 @@ function createSettings(self: Visual, objects: DataViewObjects) {
       background: getValue<boolean>(objects, "buttonSetting", "background", defaultSettings.buttonSetting.background),
       backgroundColor: getValue<Fill>(objects, "buttonSetting", "backgroundColor", defaultSettings.buttonSetting.backgroundColor),
       padding: getValue<number>(objects, "buttonSetting", "padding", defaultSettings.buttonSetting.padding),
+      margin: getValue<number>(objects, "buttonSetting", "margin", defaultSettings.buttonSetting.margin),
     },
 
     captionSettings: {
