@@ -191,7 +191,7 @@
           }
         },
         "iconStyle": {
-          "displayName": "Icon Style",
+          "displayName": "Control Style",
           "type": {
             "enumeration": [
               {
