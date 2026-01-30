@@ -11,7 +11,7 @@ export function renderScrubber(self: Visual) {
   root.selectAll('.tp-scrubber-container').remove();
   
   // Check if scrubber should be shown
-  if (!self.visualSettings.scrubberSettings.show) {
+  if (!self.settings.scrubberSettings.show) {
     return;
   }
   
@@ -30,7 +30,7 @@ export function renderScrubber(self: Visual) {
     .style('margin-top', 'auto');
   
   const total = self.viewModel.dataPoints.length;
-  const bin = self.visualSettings.transitionSettings.bin;
+  const bin = self.settings.transitionSettings.bin;
   const maxPosition = Math.max(0, total - bin);
   
   // Create the range input
@@ -73,7 +73,7 @@ export function renderScrubber(self: Visual) {
         const dp = self.viewModel.dataPoints[self.lastSelected + j];
         if (dp) selectionArray.push(dp.selectionId);
       }
-      if(self.host.hostCapabilities.allowInteractions)
+      if(Visual.host.hostCapabilities.allowInteractions)
     {  self.selectionManager.select(selectionArray);}
       
       // Update caption - always show actual categories when scrubbing, not the default display
@@ -101,7 +101,7 @@ export function updateScrubber(self: Visual) {
   const scrubber = select<HTMLInputElement, unknown>('.tp-scrubber');
   if (!scrubber.empty() && self.viewModel && self.viewModel.dataPoints) {
     const total = self.viewModel.dataPoints.length;
-    const bin = self.visualSettings.transitionSettings.bin;
+    const bin = self.settings.transitionSettings.bin;
     const maxPosition = Math.max(0, total - bin);
     
     // Ensure lastSelected is within valid range and aligned to bin
@@ -126,9 +126,9 @@ export function applyScrubberColors(self: Visual) {
   if (scrubber.empty()) return;
   
   // Use the same color logic as buttons
-  const buttonColor = self.visualSettings.buttonSetting.showAll
-    ? self.visualSettings.buttonSetting.playColor.solid.color
-    : self.visualSettings.buttonSetting.pickedColor.solid.color;
+  const buttonColor = self.settings.buttonSetting.showAll
+    ? self.settings.buttonSetting.playColor
+    : self.settings.buttonSetting.pickedColor;
   
   // Apply color to scrubber thumb using CSS custom property or inline style
   // Since we can't directly style pseudo-elements with inline styles, we'll use a CSS variable

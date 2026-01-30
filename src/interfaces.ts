@@ -1,6 +1,6 @@
 import powerbi from "powerbi-visuals-api";
 import ISelectionId = powerbi.visuals.ISelectionId;
-import Fill = powerbi.Fill;
+import { VisualSettings } from "./Settings/settings";
 
 export type ButtonIconTypes = "default" | "filled" | "btn" | "btn-fill" | "circle" | "circle-fill";
 
@@ -27,7 +27,7 @@ export enum Status {
 
 export interface IViewModel {
   dataPoints: ICategoryDataPoint[];
-  settings: ISettings;
+  settings: VisualSettings;
   categoryDisplay: string;
 }
 
@@ -35,45 +35,4 @@ export interface ICategoryDataPoint {
   category: string;
   sortValue: any;
   selectionId: ISelectionId;
-}
-
-export interface ISettings {
-  transitionSettings: {
-    autoStart: boolean;
-    loop: boolean;
-    timeInterval: number;
-    bin: number;
-  };
-  buttonSetting: {
-    minimal: boolean;
-    dynamicSize: boolean;
-    buttonSize: number;
-    pickedColor: Fill;
-    showAll: boolean;
-    playColor: Fill;
-    pauseColor: Fill;
-    stopColor: Fill;
-    previousColor: Fill;
-    nextColor: Fill;
-    columnQuery: string;
-    iconStyle: "default" | "filled" | "btn" | "btn-fill" | "circle" | "circle-fill";
-    background: boolean;
-    backgroundColor: Fill;
-    padding: number;
-    margin: number;
-  };
-  captionSettings: {
-    show: boolean;
-    captionColor: Fill;
-    fontSize: number;
-    position: string;
-    separator: string;
-  };
-  customSort: {
-    show: boolean;
-    ascending: boolean;
-  };
-  scrubberSettings: {
-    show: boolean;
-  };
 }

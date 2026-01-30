@@ -4,7 +4,7 @@ import { buttonNames, buttonIconsDefault, buttonIconsFill, buttonIconsBtn, butto
 import { Visual } from "../visual";
 
 export function minimalStyle(self: Visual) {
-  const isMinimal = self.visualSettings.buttonSetting.minimal;
+  const isMinimal = self.settings.buttonSetting.minimal;
   for (let i = 0; i < buttonNames.length; ++i) {
     const buttonId = buttonNames[i];
     const display = isMinimal ? (buttonId === 'play' ? 'flex' : 'none') : 'flex';
@@ -18,7 +18,7 @@ export function renderButtons(self: Visual) {
   // Clear any existing buttons
   toolbar.selectAll('.button-container').remove();
 
-  const isMinimal = self.visualSettings.buttonSetting.minimal;
+  const isMinimal = self.settings.buttonSetting.minimal;
 
   // Create new div container
   const container = toolbar
@@ -29,7 +29,7 @@ export function renderButtons(self: Visual) {
     .style("align-items", "center");
 
   let selectedIcons: string[] = [];
-  switch (self.visualSettings.buttonSetting.iconStyle) {
+  switch (self.settings.buttonSetting.iconStyle) {
     case "default":
       selectedIcons = buttonIconsDefault;
       break;
@@ -50,7 +50,7 @@ export function renderButtons(self: Visual) {
       break;
     default:
       selectedIcons = buttonIconsDefault; // Default to default/outlined if no match
-      console.warn(`Unknown iconStyle: ${self.visualSettings.buttonSetting.iconStyle}, defaulting to "default"`);
+      console.warn(`Unknown iconStyle: ${self.settings.buttonSetting.iconStyle}, defaulting to "default"`);
       break;
   }
 
@@ -59,8 +59,8 @@ export function renderButtons(self: Visual) {
       .append("button")
       .attr("id", buttonNames[i])
       .attr("class", "control-button")
-      // .style("background", self.visualSettings.buttonSetting.background ? "#f0f0f0" : "none");
-      .style("background", self.visualSettings.buttonSetting.background ? self.visualSettings.buttonSetting.backgroundColor.solid.color : "none");
+      // .style("background", self.settings.buttonSetting.background ? "#f0f0f0" : "none");
+      .style("background", self.settings.buttonSetting.background ? self.settings.buttonSetting.backgroundColor : "none");
 
     button.append("i").attr("class", `bi ${selectedIcons[i]}`);
     // .html(`<i class="bi ${selectedIcons[i]}"></i>`);
@@ -70,7 +70,7 @@ export function renderButtons(self: Visual) {
 }
 
 export function setButtonClick(self: Visual) {
-  const bin = self.visualSettings.transitionSettings.bin;
+  const bin = self.settings.transitionSettings.bin;
 
   // Use div button event binding
   select("#play").on("click", () => {
@@ -105,7 +105,7 @@ function getOrCreateToolbar(self: Visual) {
 }
 
 // function getIcon(self: Visual, index: number): string {
-//   switch (self.visualSettings.buttonSetting.iconStyle) {
+//   switch (self.settings.buttonSetting.iconStyle) {
 //     case "filled":
 //       return buttonIconsFill[index];
 //     case "outlined":
@@ -118,7 +118,7 @@ function getOrCreateToolbar(self: Visual) {
 // }
 
 // export function setButtonClick(self: Visual) {
-//   const bin = self.visualSettings.transitionSettings.bin;
+//   const bin = self.settings.transitionSettings.bin;
 //   //Events on click
 //   self.svg.select("#play").on("click", () => {
 //     playAnimation(self);

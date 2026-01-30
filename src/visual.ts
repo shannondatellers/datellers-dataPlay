@@ -11,26 +11,26 @@ import { playAnimation, stopAnimation } from "./Functions/animationFunctions";
 import { visualTransform } from "./Functions/viewModel";
 import { LandingPageConstants as lc } from "./DesignElements/designConstants";
 import { renderLandingPage } from "./DesignElements/renderLandingPage";
-import { buttonNames, ISettings, IViewModel, Status } from './interfaces';
+import { buttonNames, IViewModel, Status } from './interfaces';
 import IVisualEventService = powerbi.extensibility.IVisualEventService;
 import VisualConstructorOptions = powerbi.extensibility.visual.VisualConstructorOptions;
 import VisualUpdateOptions = powerbi.extensibility.visual.VisualUpdateOptions;
 import IVisual = powerbi.extensibility.visual.IVisual;
-import EnumerateVisualObjectInstancesOptions = powerbi.EnumerateVisualObjectInstancesOptions;
-import VisualObjectInstance = powerbi.VisualObjectInstance;
 import IVisualHost = powerbi.extensibility.visual.IVisualHost;
 import ISelectionManager = powerbi.extensibility.ISelectionManager;
-import VisualObjectInstanceEnumeration = powerbi.VisualObjectInstanceEnumeration;
+import { createFormattingCards } from "./Settings/createFormattingCards";
+import { isNil } from "lodash";
+import { VisualSettings } from "./Settings/settings";
 
 export class Visual implements IVisual {
-  public host: IVisualHost;
+  public static host: IVisualHost;
   public options: VisualUpdateOptions;
   public selectionManager: ISelectionManager;
   public element: HTMLElement;
   public rootSelection: any;
   private events: IVisualEventService;
 
-  public visualSettings: ISettings;
+  public settings: VisualSettings;
   public status: Status;
   public lastSelected: number;
   public viewModel: IViewModel;
@@ -80,9 +80,9 @@ export class Visual implements IVisual {
     const maxButtonPx = 300;
     // Add 20% extra width buffer to caption to prevent edge crossing
     const captionWidthBuffer = Math.ceil(captionDesiredWidth * 1.2);
-    const reservedCaptionWidth = Math.max(captionWidthBuffer, this.visualSettings.captionSettings.show ? 40 : 0);
+    const reservedCaptionWidth = Math.max(captionWidthBuffer, this.settings.captionSettings.show ? 40 : 0);
 
-    const configuredMargin = this.visualSettings.buttonSetting.margin ?? 0;
+    const configuredMargin = this.settings.buttonSetting.margin ?? 0;
     const totalButtonMargins = 2 * configuredMargin * visibleButtonCount;
 
     // Calculate maximum button size based on available width
@@ -106,8 +106,8 @@ export class Visual implements IVisual {
     selectAll('.button-container').style('padding', `${effectivePadding}px`).style('gap', `${effectiveGap}px`);
 
     // Button padding controls spacing between the icon and the button border - make it responsive
-    const configuredInnerPadding = this.visualSettings.buttonSetting.padding ?? 0;
-    const configuredMargin = this.visualSettings.buttonSetting.margin ?? 0;
+    const configuredInnerPadding = this.settings.buttonSetting.padding ?? 0;
+    const configuredMargin = this.settings.buttonSetting.margin ?? 0;
     const maxInnerPadding = Math.max(0, Math.floor((this.buttonSize - 4) / 2.0));
     const innerPadding = Math.min(maxInnerPadding, Math.max(0, Math.floor(configuredInnerPadding)));
 
@@ -130,14 +130,14 @@ export class Visual implements IVisual {
   }
 
   private applyButtonColors() {
-    if (this.visualSettings.buttonSetting.showAll) {
-      select('#play').style('color', this.visualSettings.buttonSetting.playColor.solid.color);
-      select('#pause').style('color', this.visualSettings.buttonSetting.pauseColor.solid.color);
-      select('#stop').style('color', this.visualSettings.buttonSetting.stopColor.solid.color);
-      select('#previous').style('color', this.visualSettings.buttonSetting.previousColor.solid.color);
-      select('#next').style('color', this.visualSettings.buttonSetting.nextColor.solid.color);
+    if (this.settings.buttonSetting.showAll) {
+      select('#play').style('color', this.settings.buttonSetting.playColor);
+      select('#pause').style('color', this.settings.buttonSetting.pauseColor);
+      select('#stop').style('color', this.settings.buttonSetting.stopColor);
+      select('#previous').style('color', this.settings.buttonSetting.previousColor);
+      select('#next').style('color', this.settings.buttonSetting.nextColor);
     } else {
-      selectAll('.control-button').style('color', this.visualSettings.buttonSetting.pickedColor.solid.color);
+      selectAll('.control-button').style('color', this.settings.buttonSetting.pickedColor);
     }
     // Also update scrubber colors when button colors change
     applyScrubberColors(this);
@@ -153,8 +153,8 @@ export class Visual implements IVisual {
   ) {
     renderCaptions(this);
 
-    const captionColor = this.visualSettings.captionSettings.captionColor.solid.color;
-    const configuredCaptionFontSize = this.visualSettings.captionSettings.fontSize;
+    const captionColor = this.settings.captionSettings.captionColor;
+    const configuredCaptionFontSize = this.settings.captionSettings.fontSize;
     // Caption font size is treated as pt - make it responsive to viewport height
     const viewportHeightPt = (this.options.viewport.height * 72) / 96;
     const maxByHeightPt = Math.floor(viewportHeightPt * 0.9); // Use 90% of available height
@@ -176,7 +176,7 @@ export class Visual implements IVisual {
       .style('padding-right', '4px');
 
     // Adjust layout based on Dynamic Sizing setting
-    const isDynamicSize = this.visualSettings.buttonSetting.dynamicSize;
+    const isDynamicSize = this.settings.buttonSetting.dynamicSize;
 
     // Adjust layout: caption always takes remaining space to allow full alignment
     selectAll('.button-container').style('flex', '0 0 auto');
@@ -187,7 +187,7 @@ export class Visual implements IVisual {
     // Measure caption text width for button size calculation (only when dynamic sizing is on)
     const captionElement = this.element.querySelector<HTMLElement>('.caption');
     let captionWidth = 0;
-    if (isDynamicSize && this.visualSettings.captionSettings.show && captionElement) {
+    if (isDynamicSize && this.settings.captionSettings.show && captionElement) {
       // Force layout recalculation to get accurate measurement
       void captionElement.offsetWidth;
       const textWidth = captionElement.scrollWidth;
@@ -198,7 +198,7 @@ export class Visual implements IVisual {
     const availableHeight = this.options.viewport.height - scrubberHeight;
 
     let targetButtonSize: number;
-    const configuredMargin = this.visualSettings.buttonSetting.margin ?? 0;
+    const configuredMargin = this.settings.buttonSetting.margin ?? 0;
 
     if (isDynamicSize) {
       // Dynamic Sizing ON: Calculate button size considering both width and height constraints
@@ -220,7 +220,7 @@ export class Visual implements IVisual {
       // Dynamic Sizing OFF: Use configured button size, constrained by height only
       // Subtract margin from available height
       const maxButtonByHeight = Math.max(8, Math.floor(availableHeight - basePadding * 2 - 2) - 2 * configuredMargin);
-      targetButtonSize = Math.min(this.visualSettings.buttonSetting.buttonSize, maxButtonByHeight);
+      targetButtonSize = Math.min(this.settings.buttonSetting.buttonSize, maxButtonByHeight);
     }
 
     const nextButtonSize = Math.max(8, Math.min(Math.floor(targetButtonSize * this.uiScale), 300));
@@ -236,7 +236,7 @@ export class Visual implements IVisual {
   }
 
   constructor(options: VisualConstructorOptions) {
-    this.host = options.host;
+    Visual.host = options.host;
     this.events = options.host.eventService;
     this.selectionManager = options.host.createSelectionManager();
     this.status = Status.Stop;
@@ -280,7 +280,7 @@ export class Visual implements IVisual {
       ) {
         renderLandingPage(
           this.rootSelection,
-          this.host,
+          Visual.host,
           lc.visualName,
 
           'https://datellers.com/contact-us/',
@@ -294,17 +294,17 @@ export class Visual implements IVisual {
 
       stopAnimation(this);
       this.options = options;
-      const viewModel = (this.viewModel = visualTransform(this, options, this.host));
-      this.visualSettings = viewModel.settings;
+      this.settings = VisualSettings.parse<VisualSettings>(options.dataViews[0]);
+      this.viewModel = visualTransform(this, options, Visual.host);
 
       // Compute button size early so layout can be responsive on very small tiles
-      const visibleButtonCount = this.visualSettings.buttonSetting.minimal ? 1 : buttonNames.length;
-      const captionMinWidth = this.visualSettings.captionSettings.show ? 40 : 0;
+      const visibleButtonCount = this.settings.buttonSetting.minimal ? 1 : buttonNames.length;
+      const captionMinWidth = this.settings.captionSettings.show ? 40 : 0;
       const baseGap = 6;
       const basePadding = 0;
-      const toolbarGap = this.visualSettings.captionSettings.show ? 6 : 0;
+      const toolbarGap = this.settings.captionSettings.show ? 6 : 0;
 
-      const configuredMargin = this.visualSettings.buttonSetting.margin ?? 0;
+      const configuredMargin = this.settings.buttonSetting.margin ?? 0;
       const totalButtonMargins = 2 * configuredMargin * visibleButtonCount;
 
       const maxButtonByWidth = Math.max(
@@ -315,13 +315,13 @@ export class Visual implements IVisual {
         )
       );
       // Reserve space for scrubber if it's shown (20px scrubber height + 2px padding = 22px total)
-      const scrubberHeight = this.visualSettings.scrubberSettings.show ? 22 : 0;
+      const scrubberHeight = this.settings.scrubberSettings.show ? 22 : 0;
       // Add small buffer to prevent cutoff (2px)
       const maxButtonByHeight = Math.max(8, Math.floor(this.options.viewport.height - basePadding * 2 - scrubberHeight - 2) - 2 * configuredMargin);
 
-      const computedButtonSize = this.visualSettings.buttonSetting.dynamicSize
+      const computedButtonSize = this.settings.buttonSetting.dynamicSize
         ? Math.min(maxButtonByWidth, maxButtonByHeight)
-        : this.visualSettings.buttonSetting.buttonSize;
+        : this.settings.buttonSetting.buttonSize;
 
       // Allow buttons to scale up/down to fill the tile
       this.buttonSize = Math.max(8, Math.min(Math.floor(computedButtonSize * this.uiScale), 150));
@@ -339,7 +339,7 @@ export class Visual implements IVisual {
       minimalStyle(this);
 
       //Start playing without click
-      if (this.visualSettings.transitionSettings.autoStart) {
+      if (this.settings.transitionSettings.autoStart) {
         playAnimation(this);
       }
 
@@ -358,170 +358,18 @@ export class Visual implements IVisual {
     }
   }
 
-  private getTransitionSettingsEnumeration(): VisualObjectInstance[] {
-    return [
-      {
-        objectName: "transitionSettings",
-        properties: {
-          autoStart: this.visualSettings.transitionSettings.autoStart,
-          loop: this.visualSettings.transitionSettings.loop,
-          timeInterval: this.visualSettings.transitionSettings.timeInterval,
-          // bin: this.visualSettings.transitionSettings.bin, // Hidden for now - will be added back in later release
-        },
-        validValues: {
-          timeInterval: {
-            numberRange: {
-              min: 1,
-              max: 10000000,
-            },
-          },
-          // bin: {
-          //   numberRange: {
-          //     min: 1,
-          //     max: 1000000,
-          //   },
-          // }, // Hidden for now - will be added back in later release
-        },
-        selector: null,
-      },
-    ];
-  }
 
-  private getButtonSettingsEnumeration(): VisualObjectInstance[] {
-    const enumeration: VisualObjectInstance[] = [
-      {
-        objectName: "buttonSetting",
-        properties: {
-          minimal: this.visualSettings.buttonSetting.minimal,
-          dynamicSize: this.visualSettings.buttonSetting.dynamicSize,
-        },
-        validValues: { padding: { numberRange: { min: 0, max: 100 } } },
-        selector: null,
-      },
-    ];
 
-    if (!this.visualSettings.buttonSetting.dynamicSize) {
-      enumeration.push({
-        objectName: "buttonSetting",
-        properties: { buttonSize: this.visualSettings.buttonSetting.buttonSize },
-        validValues: { buttonSize: { numberRange: { min: 1, max: 10000 } } },
-        selector: null,
-      });
-    }
+  public getFormattingModel(): powerbi.visuals.FormattingModel {
 
-    enumeration.push({
-      objectName: "buttonSetting",
-      properties: {
-        iconStyle: this.visualSettings.buttonSetting.iconStyle,
-        background: this.visualSettings.buttonSetting.background,
-        padding: this.visualSettings.buttonSetting.padding,
-        margin: this.visualSettings.buttonSetting.margin,
-      },
-      validValues: {
-        padding: { numberRange: { min: 0, max: 100 } },
-        margin: { numberRange: { min: 0, max: 100 } },
-      },
-      selector: null,
+    const formattingModel: powerbi.visuals.FormattingModel = { cards: [] };
+    const cards = createFormattingCards(this);
+    cards.forEach((card) => {
+      console.log(card)
+      if (!isNil(card)) {
+        formattingModel.cards.push(card);
+      }
     });
-
-    if (this.visualSettings.buttonSetting.background) {
-      enumeration.push({
-        objectName: "buttonSetting",
-        properties: {
-          backgroundColor: this.visualSettings.buttonSetting.backgroundColor,
-        },
-        selector: null,
-      });
-    }
-
-    if (this.visualSettings.buttonSetting.showAll) {
-      enumeration.push({
-        objectName: "buttonSetting",
-        properties: {
-          showAll: this.visualSettings.buttonSetting.showAll,
-          playColor: { solid: { color: this.visualSettings.buttonSetting.playColor.solid.color } },
-          pauseColor: { solid: { color: this.visualSettings.buttonSetting.pauseColor.solid.color } },
-          stopColor: { solid: { color: this.visualSettings.buttonSetting.stopColor.solid.color } },
-          previousColor: { solid: { color: this.visualSettings.buttonSetting.previousColor.solid.color } },
-          nextColor: { solid: { color: this.visualSettings.buttonSetting.nextColor.solid.color } },
-        },
-        selector: null,
-      });
-    } else {
-      enumeration.push({
-        objectName: "buttonSetting",
-        properties: {
-          showAll: this.visualSettings.buttonSetting.showAll,
-          pickedColor: { solid: { color: this.visualSettings.buttonSetting.pickedColor.solid.color } },
-        },
-        selector: null,
-      });
-    }
-
-    return enumeration;
-  }
-
-  private getCaptionSettingsEnumeration(): VisualObjectInstance[] {
-    return [
-      {
-        objectName: "captionSettings",
-        properties: {
-          show: this.visualSettings.captionSettings.show,
-          position: this.visualSettings.captionSettings.position,
-          captionColor: { solid: { color: this.visualSettings.captionSettings.captionColor.solid.color } },
-          fontSize: this.visualSettings.captionSettings.fontSize,
-          // separator: this.visualSettings.captionSettings.separator,
-        },
-        selector: null,
-      },
-    ];
-  }
-
-  private getCustomSortEnumeration(): VisualObjectInstance[] {
-    const sortByFieldExists = this.options.dataViews[0].metadata.columns.find((col) => col.roles.sortBy);
-    if (sortByFieldExists) {
-      return [
-        {
-          objectName: "customSort",
-          properties: {
-            show: this.visualSettings.customSort.show,
-            ascending: this.visualSettings.customSort.ascending,
-          },
-          selector: null,
-        },
-      ];
-    }
-  }
-
-  private getScrubberSettingsEnumeration(): VisualObjectInstance[] {
-    return [
-      {
-        objectName: "scrubberSettings",
-        properties: {
-          show: this.visualSettings.scrubberSettings.show,
-        },
-        selector: null,
-      },
-    ];
-  }
-
-  public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions): VisualObjectInstanceEnumeration {
-    const objectName = options.objectName;
-
-    switch (objectName) {
-      case "transitionSettings":
-        return this.getTransitionSettingsEnumeration();
-
-      case "buttonSetting":
-        return this.getButtonSettingsEnumeration();
-      case "captionSettings":
-        return this.getCaptionSettingsEnumeration();
-      case "customSort":
-        return this.getCustomSortEnumeration();
-      case "scrubberSettings":
-        return this.getScrubberSettingsEnumeration();
-      default:
-        return [];
-    }
+    return formattingModel;
   }
 }

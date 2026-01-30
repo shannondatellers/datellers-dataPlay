@@ -21,7 +21,7 @@ export function playAnimation(self: Visual) {
   select("#pause").style("opacity", "1");
 
   // Toggle display
-  select('#play').style('display', self.visualSettings.buttonSetting.minimal ? 'none' : 'flex');
+  select('#play').style('display', self.settings.buttonSetting.minimal ? 'none' : 'flex');
   select('#stop').style('display', 'flex');
 
   const timeInterval = self.viewModel.settings.transitionSettings.timeInterval;
@@ -38,7 +38,7 @@ export function playAnimation(self: Visual) {
       const dp = self.viewModel.dataPoints[self.lastSelected + j];
       if (dp) selectionArray.push(dp.selectionId);
     }
-    if (self.host.hostCapabilities.allowInteractions) {
+    if (Visual.host.hostCapabilities.allowInteractions) {
       self.selectionManager.select(selectionArray);
     }
     updateCaption(self, false);
@@ -48,7 +48,7 @@ export function playAnimation(self: Visual) {
     // Check if this is the last iteration (next advance would go past the end)
     const nextSelected = self.lastSelected + bin;
     if (nextSelected >= total) {
-      if (self.visualSettings.transitionSettings.loop) {
+      if (self.settings.transitionSettings.loop) {
         // Loop back to start after showing the last value
         const timer = setTimeout(() => {
           self.lastSelected = 0;
@@ -68,7 +68,7 @@ export function playAnimation(self: Visual) {
           // Reset to starting position and clear selection
           self.lastSelected = 0; 
           
-          if (self.host.hostCapabilities.allowInteractions) {
+          if (Visual.host.hostCapabilities.allowInteractions) {
             self.selectionManager.clear();
           }
           self.status = Status.Stop;
@@ -79,7 +79,7 @@ export function playAnimation(self: Visual) {
           select('#next').style('opacity', '0.3'); // Disabled when stopped
           select('#previous').style('opacity', '0.3'); // Disabled when stopped
           select('#play').style('display', 'flex');
-          select('#stop').style('display', self.visualSettings.buttonSetting.minimal ? 'none' : 'flex');
+          select('#stop').style('display', self.settings.buttonSetting.minimal ? 'none' : 'flex');
 
           updateCaption(self, true);
           updateScrubber(self);
@@ -112,7 +112,7 @@ export function stopAnimation(self: Visual) {
 
   // Toggle visibility
   select('#play').style('display', 'flex');
-  select('#stop').style('display', self.visualSettings.buttonSetting.minimal ? 'none' : 'flex');
+  select('#stop').style('display', self.settings.buttonSetting.minimal ? 'none' : 'flex');
 
   // Clear timers
   for (const i of self.timers) {
@@ -121,7 +121,7 @@ export function stopAnimation(self: Visual) {
 
   updateCaption(self, true);
   self.lastSelected = 0;
-  if (self.host.hostCapabilities.allowInteractions) {
+    if (Visual.host.hostCapabilities.allowInteractions) {
     self.selectionManager.clear();
   }
   self.status = Status.Stop;
@@ -163,7 +163,7 @@ export function step(self: Visual, step: number) {
       selectionArray.push(self.viewModel.dataPoints[self.lastSelected + j].selectionId);
     }
   }
-  if (self.host.hostCapabilities.allowInteractions) {
+    if (Visual.host.hostCapabilities.allowInteractions) {
     self.selectionManager.select(selectionArray);
   }
 

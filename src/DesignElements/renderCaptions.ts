@@ -38,7 +38,7 @@ export function renderCaptions(self: Visual) {
   const toolbar = getOrCreateToolbar(self);
   toolbar.selectAll('.caption').remove();
 
-  if (!self.visualSettings.captionSettings.show) return;
+  if (!self.settings.captionSettings.show) return;
   toolbar
     .append('div')
     .classed('caption', true)
@@ -51,11 +51,11 @@ export function renderCaptions(self: Visual) {
 }
 
 export function updateCaption(self: Visual, isStopped: boolean) {
-  const bin = self.visualSettings.transitionSettings.bin;
+  const bin = self.settings.transitionSettings.bin;
   const shouldWrap = (bin ?? 1) > 1;
 
   const captionSelection = select('.caption');
-  const position = self.visualSettings.captionSettings.position;
+  const position = self.settings.captionSettings.position;
   const horizontalAlign = position === 'right' ? 'flex-end' : position === 'center' ? 'center' : 'flex-start';
 
   // Layout rules:
@@ -112,9 +112,9 @@ export function updateCaption(self: Visual, isStopped: boolean) {
   const captionArray = self.viewModel.dataPoints.filter((datapoint, index) => {
     return index >= self.lastSelected && index < self.lastSelected + bin;
   });
-  // const separator = self.visualSettings.captionSettings.separator;
+  // const separator = self.settings.captionSettings.separator;
   captionSelection.selectAll('*').remove();
-  if (self.visualSettings.captionSettings.show) {
+  if (self.settings.captionSettings.show) {
     const caption = isStopped ? self.viewModel.categoryDisplay : captionArray.map((el) => el.category).join(', ');
     captionSelection.attr('title', caption);
     if (isStopped) {
@@ -125,7 +125,7 @@ export function updateCaption(self: Visual, isStopped: boolean) {
         captionSelection
           .append('span')
           .style('display', 'block')
-          .text(`${el.category}${i === captionArray.length - 1 ? '' : `${self.visualSettings.captionSettings.separator} `}`);
+          .text(`${el.category}${i === captionArray.length - 1 ? '' : ' '}`);
       });
     } else {
       // bin == 1: single text that can wrap
