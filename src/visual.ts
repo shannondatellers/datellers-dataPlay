@@ -282,8 +282,7 @@ export class Visual implements IVisual {
           this.rootSelection,
           Visual.host,
           lc.visualName,
-
-          'https://datellers.com/contact-us/',
+          'https://datellers.com/products/data-play/data-play-user-guide/',
           `${lc.visualDescription}`,
           true,
           options.viewport
